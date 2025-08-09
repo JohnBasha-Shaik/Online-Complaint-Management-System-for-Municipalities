@@ -1,0 +1,31 @@
+server:
+  port: 8084
+
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: your-email@gmail.com
+    password: your-app-password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+sms:
+  api:
+    url: https://api.twilio.com/2010-04-01/Accounts/YOUR_ACCOUNT_SID/Messages.json
+    account-sid: YOUR_ACCOUNT_SID
+    auth-token: YOUR_AUTH_TOKEN
+    from-number: "+1234567890"
+
+jwt:
+  secret: mySecretKey123456789012345678901234567890
+  expiration: 86400000 # 24 hours
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
