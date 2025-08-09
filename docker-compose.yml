@@ -1,0 +1,133 @@
+version: '3.8'
+
+services:
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-complaint-system
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: complaint_system
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - complaint-network
+
+  eureka-server:
+    build: ./eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - complaint-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  config-server:
+    build: ./config-server
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    depends_on:
+      - eureka-server
+    networks:
+      - complaint-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+      - config-server
+    networks:
+      - complaint-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mysql-db
+      - eureka-server
+      - config-server
+    networks:
+      - complaint-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/complaint_system
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root123
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+
+  complaint-service:
+    build: ./complaint-service
+    container_name: complaint-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - mysql-db
+      - eureka-server
+      - config-server
+    networks:
+      - complaint-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/complaint_system
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root123
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+
+  department-service:
+    build: ./department-service
+    container_name: department-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - mysql-db
+      - eureka-server
+      - config-server
+    networks:
+      - complaint-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/complaint_system
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root123
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - eureka-server
+      - config-server
+    networks:
+      - complaint-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+
+volumes:
+  mysql_data:
+
+networks:
+  complaint-network:
+    driver: bridge
