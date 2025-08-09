@@ -1,0 +1,17 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/userdb?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+
+logging:
+  level:
+    com.municipal.user: DEBUG
+
+app:
+  admin:
+    default-email: admin@city.gov
+    default-password: Admin@123

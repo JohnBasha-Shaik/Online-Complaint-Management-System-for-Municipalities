@@ -1,0 +1,13 @@
+server:
+  port: 8084
+
+logging:
+  level:
+    com.municipal.notification: DEBUG
+
+app:
+  notification:
+    email:
+      from: no-reply@city.gov
+    sms:
+      provider: dummy
