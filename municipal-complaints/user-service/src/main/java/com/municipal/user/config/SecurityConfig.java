@@ -65,7 +65,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/auth/**").permitAll()
+                        .requestMatchers("/", "/ui/**", "/api/users/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/admin/**").hasRole(Roles.ADMIN.name())
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults());
